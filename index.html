@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Інтерактивний посібник по елементах інтерфейсу користувача</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .tooltip {
+        position: relative;
+        display: inline-block;
+      }
+      .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 200px;
+        background-color: #374151;
+        color: white;
+        text-align: center;
+        border-radius: 8px;
+        padding: 10px;
+        position: absolute;
+        z-index: 1000;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -100px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        font-size: 14px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .tab-button.active {
+        background-color: #3b82f6;
+        color: white;
+      }
+      .dropdown {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+      }
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        width: 100%;
+        max-height: 200px;
+        overflow-y: auto;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        top: 100%;
+      }
+      .dropdown-content div {
+        color: #374151;
+        padding: 12px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid #f3f4f6;
+        transition: background-color 0.2s;
+      }
+      .dropdown-content div:hover {
+        background-color: #f9fafb;
+      }
+      .dropdown-content div:last-child {
+        border-bottom: none;
+      }
+      .dropdown.open .dropdown-content {
+        display: block;
+      }
+      .multiselect {
+        position: relative;
+        display: block;
+        width: 100%;
+      }
+      .multiselect-input {
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 10px;
+        min-height: 42px;
+        background: white;
+        cursor: pointer;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        align-items: center;
+      }
+      .multiselect-tag {
+        display: inline-flex;
+        align-items: center;
+        background: #3b82f6;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        gap: 6px;
+      }
+      .multiselect-tag .remove {
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 14px;
+      }
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 20px;
+        border-radius: 8px;
+        color: white;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s ease;
+        min-width: 250px;
+      }
+      .notification.show {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      .notification.success {
+        background-color: #10b981;
+      }
+      .notification.error {
+        background-color: #ef4444;
+      }
+      .notification.info {
+        background-color: #3b82f6;
+      }
+      .search-highlight {
+        background-color: #fef08a;
+        font-weight: 600;
+        padding: 1px 2px;
+        border-radius: 2px;
+      }
+      .control-example {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 24px;
+        margin: 16px 0;
+        transition: all 0.3s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      .control-example:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+      }
+      .data-grid {
+        border-collapse: collapse;
+        width: 100%;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      .data-grid th,
+      .data-grid td {
+        border: 1px solid #e5e7eb;
+        padding: 12px 16px;
+        text-align: left;
+      }
+      .data-grid th {
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+        transition: background-color 0.2s;
+      }
+      .data-grid th:hover {
+        background-color: #d1d5db;
+      }
+      .data-grid tbody tr:nth-child(even) {
+        background-color: #f9fafb;
+      }
+      .data-grid tbody tr:hover {
+        background-color: #eff6ff;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        transition: all 0.2s ease;
+      }
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+      }
+      .loading {
+        display: none;
+        align-items: center;
+        gap: 8px;
+      }
+      .loading.show {
+        display: flex;
+      }
+      .spinner {
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #3b82f6;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <!-- Notification Container -->
+    <div id="notification" class="notification"></div>
+
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+      <header class="text-center mb-12">
+        <h1
+          class="text-5xl font-bold text-gray-800 mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+        >
+          Інтерактивний посібник UI елементів
+        </h1>
+        <p class="text-xl text-gray-600 mb-2">
+          Повний огляд елементів інтерфейсу з живими прикладами
+        </p>
+        <p class="text-lg text-blue-600 font-medium">Виконав: Артур Серкелі</p>
+      </header>
+
+      <!-- Search Bar -->
+      <div class="mb-8">
+        <div class="max-w-md mx-auto">
+          <div class="relative">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Пошук елементів..."
+              class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
+              <svg
+                class="w-5 h-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                ></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-12">
+        <!-- 1. Radiobutton -->
+        <section class="ui-element" data-element="radiobutton">
+          <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+              1. Radiobutton (Радіокнопка)
+            </h2>
+            <p class="text-gray-600 mb-6">
+              Дозволяє обрати лише один варіант з групи опцій. Використовується
+              коли потрібен єдиний вибір.
+            </p>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Розмір піци:</h4>
+              <div class="space-y-3">
+                <label class="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="pizza-size"
+                    value="small"
+                    class="w-5 h-5 text-blue-600"
+                  />
+                  <span class="text-gray-700">Мала (20см) - 120₴</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="pizza-size"
+                    value="medium"
+                    class="w-5 h-5 text-blue-600"
+                    checked
+                  />
+                  <span class="text-gray-700">Середня (30см) - 180₴</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="pizza-size"
+                    value="large"
+                    class="w-5 h-5 text-blue-600"
+                  />
+                  <span class="text-gray-700">Велика (40см) - 250₴</span>
+                </label>
+              </div>
+              <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                <span class="text-blue-800 font-medium">Обрано: </span>
+                <span id="pizza-result" class="text-blue-600"
+                  >Середня (30см) - 180₴</span
+                >
+              </div>
+            </div>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Оцініть наш сервіс:</h4>
+              <div class="flex flex-wrap gap-4">
+                <label class="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="rating"
+                    value="1"
+                    class="w-5 h-5 text-red-600"
+                  />
+                  <span class="text-gray-700">😞 Погано</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="rating"
+                    value="2"
+                    class="w-5 h-5 text-yellow-600"
+                  />
+                  <span class="text-gray-700">😐 Нормально</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="rating"
+                    value="3"
+                    class="w-5 h-5 text-green-600"
+                  />
+                  <span class="text-gray-700">😊 Добре</span>
+                </label>
+                <label class="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="rating"
+                    value="4"
+                    class="w-5 h-5 text-green-600"
+                  />
+                  <span class="text-gray-700">🤩 Чудово</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Checkbox -->
+        <section class="ui-element" data-element="checkbox">
+          <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+              2. Checkbox (Прапорець)
+            </h2>
+            <p class="text-gray-600 mb-6">
+              Дозволяє обирати декілька варіантів одночасно або вмикати/вимикати
+              опції.
+            </p>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">
+                Додаткові послуги готелю:
+              </h4>
+              <div class="grid md:grid-cols-2 gap-3">
+                <label class="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    class="w-5 h-5 text-blue-600 rounded"
+                    id="wifi"
+                  />
+                  <span class="text-gray-700">WiFi (+50₴/день)</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    class="w-5 h-5 text-blue-600 rounded"
+                    id="breakfast"
+                  />
+                  <span class="text-gray-700">Сніданок (+150₴/день)</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    class="w-5 h-5 text-blue-600 rounded"
+                    id="parking"
+                  />
+                  <span class="text-gray-700">Паркування (+100₴/день)</span>
+                </label>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    class="w-5 h-5 text-blue-600 rounded"
+                    id="spa"
+                  />
+                  <span class="text-gray-700">SPA-доступ (+200₴/день)</span>
+                </label>
+              </div>
+              <div class="mt-4 p-3 bg-green-50 rounded-lg">
+                <span class="text-green-800 font-medium"
+                  >Загальна вартість:
+                </span>
+                <span id="total-cost" class="text-green-600 font-bold"
+                  >0₴/день</span
+                >
+              </div>
+            </div>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">
+                Налаштування сповіщень:
+              </h4>
+              <div class="space-y-3">
+                <label class="flex items-center justify-between cursor-pointer">
+                  <span class="text-gray-700">Email-сповіщення</span>
+                  <input
+                    type="checkbox"
+                    class="w-5 h-5 text-blue-600 rounded"
+                    checked
+                  />
+                </label>
+                <label class="flex items-center justify-between cursor-pointer">
+                  <span class="text-gray-700">SMS-повідомлення</span>
+                  <input
+                    type="checkbox"
+                    class="w-5 h-5 text-blue-600 rounded"
+                  />
+                </label>
+                <label class="flex items-center justify-between cursor-pointer">
+                  <span class="text-gray-700">Push-сповіщення</span>
+                  <input
+                    type="checkbox"
+                    class="w-5 h-5 text-blue-600 rounded"
+                    checked
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. Text Input -->
+        <section class="ui-element" data-element="text input">
+          <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+              3. Text Input (Текстове поле)
+            </h2>
+            <p class="text-gray-600 mb-6">
+              Дозволяє користувачу вводити текст. Може бути однорядковим або
+              багаторядковим.
+            </p>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Форма реєстрації:</h4>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Ім'я *</label
+                  >
+                  <input
+                    type="text"
+                    id="firstName"
+                    placeholder="Введіть ваше ім'я"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Прізвище *</label
+                  >
+                  <input
+                    type="text"
+                    id="lastName"
+                    placeholder="Введіть ваше прізвище"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Email *</label
+                  >
+                  <input
+                    type="email"
+                    id="email"
+                    placeholder="example@gmail.com"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Номер телефону</label
+                  >
+                  <input
+                    type="tel"
+                    id="phone"
+                    placeholder="+380 XX XXX XX XX"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+              <button
+                onclick="validateForm()"
+                class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+              >
+                Перевірити форму
+              </button>
+            </div>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Пошук по сайту:</h4>
+              <div class="relative">
+                <input
+                  type="text"
+                  id="siteSearch"
+                  placeholder="Шукати товари, статті, відгуки..."
+                  class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
+                  <svg
+                    class="w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Коментар або відгук:</label
+                >
+                <textarea
+                  id="comment"
+                  rows="4"
+                  placeholder="Поділіться вашими думками..."
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+                ></textarea>
+                <div class="text-right text-sm text-gray-500 mt-1">
+                  <span id="charCount">0</span>/500 символів
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Tabs -->
+        <section class="ui-element" data-element="tabs">
+          <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+              4. Tabs (Вкладки)
+            </h2>
+            <p class="text-gray-600 mb-6">
+              Організовують контент у кілька розділів, дозволяючи переключатися
+              між ними.
+            </p>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">
+                Інформація про продукт:
+              </h4>
+              <div class="border-b border-gray-200 mb-4">
+                <nav class="flex space-x-1">
+                  <button
+                    onclick="showTab('description')"
+                    id="tab-description"
+                    class="tab-button py-3 px-6 text-sm font-medium rounded-t-lg border-b-2 border-transparent hover:border-gray-300 focus:outline-none active"
+                  >
+                    📋 Опис
+                  </button>
+                  <button
+                    onclick="showTab('specs')"
+                    id="tab-specs"
+                    class="tab-button py-3 px-6 text-sm font-medium rounded-t-lg border-b-2 border-transparent hover:border-gray-300 focus:outline-none"
+                  >
+                    ⚙️ Характеристики
+                  </button>
+                  <button
+                    onclick="showTab('reviews')"
+                    id="tab-reviews"
+                    class="tab-button py-3 px-6 text-sm font-medium rounded-t-lg border-b-2 border-transparent hover:border-gray-300 focus:outline-none"
+                  >
+                    ⭐ Відгуки (24)
+                  </button>
+                </nav>
+              </div>
+
+              <div id="content-description" class="tab-content active">
+                <h5 class="font-semibold text-lg mb-3">
+                  Смартфон iPhone 15 Pro
+                </h5>
+                <p class="text-gray-700 mb-4">
+                  Революційний смартфон з титановим корпусом та чіпом A17 Pro.
+                  Професійна камерна система з новими можливостями зйомки.
+                </p>
+                <ul class="text-gray-700 space-y-2">
+                  <li>• 6.1" Super Retina XDR дисплей</li>
+                  <li>• Чіп A17 Pro з 6-ядерним GPU</li>
+                  <li>• Потрійна камера 48Мп + 12Мп + 12Мп</li>
+                  <li>• Батарея до 23 годин відтворення відео</li>
+                </ul>
+              </div>
+
+              <div id="content-specs" class="tab-content">
+                <h5 class="font-semibold text-lg mb-3">
+                  Технічні характеристики
+                </h5>
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <h6 class="font-medium mb-2">Дисплей:</h6>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                      <li>Розмір: 6.1"</li>
+                      <li>Роздільність: 2556×1179 пікселів</li>
+                      <li>Технологія: OLED</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h6 class="font-medium mb-2">Камера:</h6>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                      <li>Основна: 48 Мп, f/1.78</li>
+                      <li>Ультраширока: 12 Мп, f/2.2</li>
+                      <li>Телеоб'єктив: 12 Мп, f/2.8</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div id="content-reviews" class="tab-content">
+                <h5 class="font-semibold text-lg mb-3">Відгуки користувачів</h5>
+                <div class="space-y-4">
+                  <div class="border rounded-lg p-4">
+                    <div class="flex items-center mb-2">
+                      <span class="font-medium">Олександр К.</span>
+                      <span class="ml-2 text-yellow-500">⭐⭐⭐⭐⭐</span>
+                      <span class="ml-auto text-sm text-gray-500"
+                        >2 дні тому</span
+                      >
+                    </div>
+                    <p class="text-gray-700">
+                      Чудовий телефон! Камера просто вражає якістю, а батарея
+                      тримає весь день активного використання.
+                    </p>
+                  </div>
+                  <div class="border rounded-lg p-4">
+                    <div class="flex items-center mb-2">
+                      <span class="font-medium">Марія В.</span>
+                      <span class="ml-2 text-yellow-500">⭐⭐⭐⭐⭐</span>
+                      <span class="ml-auto text-sm text-gray-500"
+                        >1 тиждень тому</span
+                      >
+                    </div>
+                    <p class="text-gray-700">
+                      Дуже швидкий та надійний. Титановий корпус виглядає
+                      преміально. Рекомендую!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. Button -->
+        <section class="ui-element" data-element="button">
+          <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+              5. Button (Кнопка)
+            </h2>
+            <p class="text-gray-600 mb-6">
+              Елемент для виконання дій. Різні типи для різних цілей та
+              важливості.
+            </p>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Типи кнопок:</h4>
+              <div class="flex flex-wrap gap-4 mb-6">
+                <button
+                  class="btn-primary px-6 py-3 text-white font-medium rounded-lg transition-all duration-200"
+                >
+                  🛒 Купити зараз
+                </button>
+                <button
+                  class="bg-gray-600 hover:bg-gray-700 px-6 py-3 text-white font-medium rounded-lg transition-colors"
+                >
+                  ➕ До кошика
+                </button>
+                <button
+                  class="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-6 py-3 font-medium rounded-lg transition-colors"
+                >
+                  💖 До бажаного
+                </button>
+                <button
+                  class="text-blue-600 hover:text-blue-800 hover:underline px-4 py-3 font-medium transition-colors"
+                >
+                  📋 Детальніше
+                </button>
+              </div>
+
+              <h4 class="font-semibold mb-4 text-lg">Розміри та стани:</h4>
+              <div class="space-y-4">
+                <div class="flex flex-wrap items-center gap-4">
+                  <button
+                    class="bg-blue-600 hover:bg-blue-700 px-3 py-1.5 text-white text-sm rounded transition-colors"
+                  >
+                    Маленька
+                  </button>
+                  <button
+                    class="bg-blue-600 hover:bg-blue-700 px-4 py-2 text-white rounded transition-colors"
+                  >
+                    Середня
+                  </button>
+                  <button
+                    class="bg-blue-600 hover:bg-blue-700 px-6 py-3 text-white text-lg rounded-lg transition-colors"
+                  >
+                    Велика
+                  </button>
+                </div>
+                <div class="flex flex-wrap items-center gap-4">
+                  <button
+                    class="bg-green-600 hover:bg-green-700 px-4 py-2 text-white rounded transition-colors"
+                  >
+                    ✅ Активна
+                  </button>
+                  <button
+                    class="bg-gray-400 px-4 py-2 text-white rounded cursor-not-allowed"
+                    disabled
+                  >
+                    ⏳ Неактивна
+                  </button>
+                  <button
+                    id="loadingBtn"
+                    onclick="simulateLoading()"
+                    class="bg-orange-600 hover:bg-orange-700 px-4 py-2 text-white rounded transition-colors"
+                  >
+                    <span class="loading show">
+                      <span class="spinner"></span>
+                      Завантаження...
+                    </span>
+                    <span class="normal-text">🔄 Оновити дані</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Інтерактивні кнопки:</h4>
+              <div class="grid md:grid-cols-3 gap-4">
+                <button
+                  onclick="showNotification('Товар додано до кошика!', 'success')"
+                  class="bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg transition-colors"
+                >
+                  🛒 Додати до кошика
+                </button>
+                <button
+                  onclick="showNotification('Сторінка оновлена!', 'info')"
+                  class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition-colors"
+                >
+                  🔄 Оновити сторінку
+                </button>
+                <button
+                  onclick="showNotification('Помилка завантаження!', 'error')"
+                  class="bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg transition-colors"
+                >
+                  ⚠️ Тестова помилка
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. Text Label -->
+        <section class="ui-element" data-element="text label">
+          <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+              6. Text Label (Текстова мітка)
+            </h2>
+            <p class="text-gray-600 mb-6">
+              Відображає текст або інформацію. Може показувати статуси,
+              категорії, підписи.
+            </p>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Статуси замовлень:</h4>
+              <div class="flex flex-wrap gap-3">
+                <span
+                  class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium"
+                >
+                  ⏳ В обробці
+                </span>
+                <span
+                  class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
+                >
+                  🚚 Відправлено
+                </span>
+                <span
+                  class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium"
+                >
+                  ✅ Доставлено
+                </span>
+                <span
+                  class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium"
+                >
+                  ❌ Скасовано
+                </span>
+              </div>
+            </div>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Категорії товарів:</h4>
+              <div class="space-y-4">
+                <div
+                  class="flex items-center justify-between p-4 border rounded-lg"
+                >
+                  <div class="flex items-center space-x-4">
+                    <img
+                      src="keys/laptop?prompt=modern laptop computer icon"
+                      alt="Laptop"
+                      class="w-12 h-12 rounded"
+                    />
+                    <div>
+                      <h5 class="font-medium">Ноутбук Apple MacBook Pro</h5>
+                      <p class="text-sm text-gray-500">
+                        Потужний ноутбук для професіоналів
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <span
+                      class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium"
+                    >
+                      Електроніка
+                    </span>
+                    <span
+                      class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-medium"
+                    >
+                      Новинка
+                    </span>
+                    <span
+                      class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium"
+                    >
+                      В наявності
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  class="flex items-center justify-between p-4 border rounded-lg"
+                >
+                  <div class="flex items-center space-x-4">
+                    <img
+                      src="keys/book?prompt=educational book icon"
+                      alt="Book"
+                      class="w-12 h-12 rounded"
+                    />
+                    <div>
+                      <h5 class="font-medium">Підручник з програмування</h5>
+                      <p class="text-sm text-gray-500">
+                        Вивчення сучасних технологій
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <span
+                      class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium"
+                    >
+                      Книги
+                    </span>
+                    <span
+                      class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium"
+                    >
+                      Розпродаж
+                    </span>
+                    <span
+                      class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-medium"
+                    >
+                      Закінчується
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Індикатори прогресу:</h4>
+              <div class="space-y-4">
+                <div>
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm text-gray-700"
+                      >Завантаження файлу</span
+                    >
+                    <span class="text-sm text-blue-600 font-medium">75%</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      class="bg-blue-600 h-2 rounded-full"
+                      style="width: 75%"
+                    ></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm text-gray-700">Обробка платежу</span>
+                    <span class="text-sm text-green-600 font-medium"
+                      >Завершено</span
+                    >
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      class="bg-green-600 h-2 rounded-full"
+                      style="width: 100%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. Link -->
+        <section class="ui-element" data-element="link">
+          <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+              7. Link (Посилання)
+            </h2>
+            <p class="text-gray-600 mb-6">
+              Забезпечує навігацію між сторінками або розділами. Може
+              відкриватись в тому ж вікні або новому.
+            </p>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Головне меню:</h4>
+              <nav class="flex flex-wrap gap-6 mb-6">
+                <a
+                  href="#"
+                  onclick="highlightLink(this)"
+                  class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-colors"
+                >
+                  🏠 Головна
+                </a>
+                <a
+                  href="#"
+                  onclick="highlightLink(this)"
+                  class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-colors"
+                >
+                  📦 Товари
+                </a>
+                <a
+                  href="#"
+                  onclick="highlightLink(this)"
+                  class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-colors"
+                >
+                  🛍️ Акції
+                </a>
+                <a
+                  href="#"
+                  onclick="highlightLink(this)"
+                  class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-colors"
+                >
+                  📞 Контакти
+                </a>
+                <a
+                  href="#"
+                  onclick="highlightLink(this)"
+                  class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-colors"
+                >
+                  ℹ️ Про нас
+                </a>
+              </nav>
+            </div>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">
+                Хлібні крихти (Breadcrumbs):
+              </h4>
+              <nav class="flex items-center space-x-2 text-sm">
+                <a href="#" class="text-blue-600 hover:underline">Головна</a>
+                <span class="text-gray-400">/</span>
+                <a href="#" class="text-blue-600 hover:underline"
+                  >Електроніка</a
+                >
+                <span class="text-gray-400">/</span>
+                <a href="#" class="text-blue-600 hover:underline">Смартфони</a>
+                <span class="text-gray-400">/</span>
+                <span class="text-gray-600">iPhone 15 Pro</span>
+              </nav>
+            </div>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Соціальні мережі:</h4>
+              <div class="flex space-x-4">
+                <a
+                  href="#"
+                  class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  📘 Facebook
+                </a>
+                <a
+                  href="#"
+                  class="inline-flex items-center px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-colors"
+                >
+                  🐦 Twitter
+                </a>
+                <a
+                  href="#"
+                  class="inline-flex items-center px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors"
+                >
+                  📷 Instagram
+                </a>
+                <a
+                  href="#"
+                  class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  🎥 YouTube
+                </a>
+              </div>
+            </div>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Текстові посилання:</h4>
+              <div class="prose max-w-none">
+                <p class="text-gray-700 leading-relaxed">
+                  Вітаємо на нашому сайті! Ознайомтесь з нашими
+                  <a href="#" class="text-blue-600 hover:underline font-medium"
+                    >умовами використання</a
+                  >
+                  та
+                  <a href="#" class="text-blue-600 hover:underline font-medium"
+                    >політикою конфіденційності</a
+                  >. Якщо у вас є питання, зв'яжіться з нашою
+                  <a href="#" class="text-blue-600 hover:underline font-medium"
+                    >службою підтримки</a
+                  >
+                  або перегляньте
+                  <a href="#" class="text-blue-600 hover:underline font-medium"
+                    >часті питання</a
+                  >.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 8. Tooltip -->
+        <section class="ui-element" data-element="tooltip">
+          <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+              8. Tooltip (Підказка)
+            </h2>
+            <p class="text-gray-600 mb-6">
+              Показує додаткову інформацію при наведенні курсору. Корисна для
+              пояснень та довідки.
+            </p>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Підказки для кнопок:</h4>
+              <div class="flex flex-wrap gap-4">
+                <div class="tooltip">
+                  <button
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    💾 Зберегти
+                  </button>
+                  <span class="tooltiptext"
+                    >Зберегти поточні зміни (Ctrl+S)</span
+                  >
+                </div>
+
+                <div class="tooltip">
+                  <button
+                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    📤 Відправити
+                  </button>
+                  <span class="tooltiptext">Відправити форму на сервер</span>
+                </div>
+
+                <div class="tooltip">
+                  <button
+                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    🗑️ Видалити
+                  </button>
+                  <span class="tooltiptext">⚠️ Остаточно видалити елемент</span>
+                </div>
+
+                <div class="tooltip">
+                  <button
+                    class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    ❓ Допомога
+                  </button>
+                  <span class="tooltiptext">Відкрити довідку (F1)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">
+                Підказки для полів форми:
+              </h4>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Пароль
+                    <div class="tooltip inline-block ml-1">
+                      <span class="text-blue-600 cursor-help">ℹ️</span>
+                      <span class="tooltiptext"
+                        >Пароль повинен містити мінімум 8 символів, включаючи
+                        цифри та спеціальні символи</span
+                      >
+                    </div>
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Введіть надійний пароль"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Дата народження
+                    <div class="tooltip inline-block ml-1">
+                      <span class="text-blue-600 cursor-help">ℹ️</span>
+                      <span class="tooltiptext"
+                        >Використовується для верифікації віку та персоналізації
+                        контенту</span
+                      >
+                    </div>
+                  </label>
+                  <input
+                    type="date"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Підказки для іконок:</h4>
+              <div class="flex space-x-6">
+                <div class="tooltip">
+                  <div
+                    class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center cursor-pointer hover:bg-blue-200 transition-colors"
+                  >
+                    <span class="text-2xl">📧</span>
+                  </div>
+                  <span class="tooltiptext"
+                    >Електронна пошта: info@example.com</span
+                  >
+                </div>
+
+                <div class="tooltip">
+                  <div
+                    class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center cursor-pointer hover:bg-green-200 transition-colors"
+                  >
+                    <span class="text-2xl">📱</span>
+                  </div>
+                  <span class="tooltiptext">Телефон: +380 XX XXX XX XX</span>
+                </div>
+
+                <div class="tooltip">
+                  <div
+                    class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center cursor-pointer hover:bg-purple-200 transition-colors"
+                  >
+                    <span class="text-2xl">📍</span>
+                  </div>
+                  <span class="tooltiptext"
+                    >Адреса: вул. Хрещатик, 1, Київ</span
+                  >
+                </div>
+
+                <div class="tooltip">
+                  <div
+                    class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center cursor-pointer hover:bg-yellow-200 transition-colors"
+                  >
+                    <span class="text-2xl">⭐</span>
+                  </div>
+                  <span class="tooltiptext">Рейтинг: 4.8/5 (127 відгуків)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 9. Dropdown List -->
+        <section class="ui-element" data-element="dropdown">
+          <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+              9. Dropdown List (Випадаючий список)
+            </h2>
+            <p class="text-gray-600 mb-6">
+              Дозволяє обрати один або кілька варіантів зі списку опцій.
+              Економить місце на інтерфейсі.
+            </p>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Вибір країни доставки:</h4>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Країна *</label
+                  >
+                  <div class="dropdown">
+                    <button
+                      onclick="toggleDropdown('country-dropdown')"
+                      class="w-full px-4 py-3 text-left border border-gray-300 rounded-lg bg-white hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <span id="selected-country">🇺🇦 Україна</span>
+                      <span class="float-right">▼</span>
+                    </button>
+                    <div id="country-dropdown" class="dropdown-content">
+                      <div onclick="selectCountry('🇺🇦 Україна')">
+                        🇺🇦 Україна
+                      </div>
+                      <div onclick="selectCountry('🇵🇱 Польща')">🇵🇱 Польща</div>
+                      <div onclick="selectCountry('🇩🇪 Німеччина')">
+                        🇩🇪 Німеччина
+                      </div>
+                      <div onclick="selectCountry('🇫🇷 Франція')">
+                        🇫🇷 Франція
+                      </div>
+                      <div onclick="selectCountry('🇮🇹 Італія')">🇮🇹 Італія</div>
+                      <div onclick="selectCountry('🇪🇸 Іспанія')">
+                        🇪🇸 Іспанія
+                      </div>
+                      <div onclick="selectCountry('🇬🇧 Великобританія')">
+                        🇬🇧 Великобританія
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Спосіб доставки</label
+                  >
+                  <div class="dropdown">
+                    <button
+                      onclick="toggleDropdown('delivery-dropdown')"
+                      class="w-full px-4 py-3 text-left border border-gray-300 rounded-lg bg-white hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <span id="selected-delivery"
+                        >🚚 Кур'єрська доставка (2-3 дні)</span
+                      >
+                      <span class="float-right">▼</span>
+                    </button>
+                    <div id="delivery-dropdown" class="dropdown-content">
+                      <div
+                        onclick="selectDelivery('🏪 Самовивіз (безкоштовно)')"
+                      >
+                        🏪 Самовивіз (безкоштовно)
+                      </div>
+                      <div onclick="selectDelivery('📮 Нова Пошта (1-2 дні)')">
+                        📮 Нова Пошта (1-2 дні)
+                      </div>
+                      <div
+                        onclick="selectDelivery('🚚 Кур\'єрська доставка (2-3 дні)')"
+                      >
+                        🚚 Кур'єрська доставка (2-3 дні)
+                      </div>
+                      <div
+                        onclick="selectDelivery('✈️ Експрес-доставка (24 години)')"
+                      >
+                        ✈️ Експрес-доставка (24 години)
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Категорії товарів:</h4>
+              <div class="dropdown">
+                <button
+                  onclick="toggleDropdown('category-dropdown')"
+                  class="px-4 py-3 text-left border border-gray-300 rounded-lg bg-white hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <span id="selected-category">📱 Всі категорії</span>
+                  <span class="ml-4">▼</span>
+                </button>
+                <div
+                  id="category-dropdown"
+                  class="dropdown-content"
+                  style="min-width: 200px"
+                >
+                  <div onclick="selectCategory('📱 Всі категорії')">
+                    📱 Всі категорії
+                  </div>
+                  <div onclick="selectCategory('💻 Ноутбуки та комп\'ютери')">
+                    💻 Ноутбуки та комп'ютери
+                  </div>
+                  <div onclick="selectCategory('📱 Смартфони та планшети')">
+                    📱 Смартфони та планшети
+                  </div>
+                  <div onclick="selectCategory('🎧 Аудіо та відео')">
+                    🎧 Аудіо та відео
+                  </div>
+                  <div onclick="selectCategory('🎮 Ігри та консолі')">
+                    🎮 Ігри та консолі
+                  </div>
+                  <div onclick="selectCategory('📷 Фото та відео')">
+                    📷 Фото та відео
+                  </div>
+                  <div onclick="selectCategory('🏠 Для дому та саду')">
+                    🏠 Для дому та саду
+                  </div>
+                  <div onclick="selectCategory('👔 Одяг та взуття')">
+                    👔 Одяг та взуття
+                  </div>
+                  <div onclick="selectCategory('📚 Книги та навчання')">
+                    📚 Книги та навчання
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">
+                Множинний вибір навичок:
+              </h4>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Ваші технічні навички</label
+              >
+              <div class="multiselect">
+                <div class="multiselect-input" onclick="toggleMultiselect()">
+                  <div id="selected-skills">
+                    <span class="multiselect-tag"
+                      >JavaScript
+                      <span
+                        class="remove"
+                        onclick="removeSkill(event, 'JavaScript')"
+                        >×</span
+                      ></span
+                    >
+                    <span class="multiselect-tag"
+                      >React
+                      <span class="remove" onclick="removeSkill(event, 'React')"
+                        >×</span
+                      ></span
+                    >
+                  </div>
+                  <span class="text-gray-400 ml-2">Обрати навички...</span>
+                </div>
+                <div id="skills-dropdown" class="dropdown-content">
+                  <div onclick="toggleSkill('HTML')">HTML</div>
+                  <div onclick="toggleSkill('CSS')">CSS</div>
+                  <div onclick="toggleSkill('JavaScript')">JavaScript</div>
+                  <div onclick="toggleSkill('React')">React</div>
+                  <div onclick="toggleSkill('Vue.js')">Vue.js</div>
+                  <div onclick="toggleSkill('Angular')">Angular</div>
+                  <div onclick="toggleSkill('Node.js')">Node.js</div>
+                  <div onclick="toggleSkill('Python')">Python</div>
+                  <div onclick="toggleSkill('PHP')">PHP</div>
+                  <div onclick="toggleSkill('Java')">Java</div>
+                  <div onclick="toggleSkill('C#')">C#</div>
+                  <div onclick="toggleSkill('MySQL')">MySQL</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 10. Data Grid -->
+        <section class="ui-element" data-element="data grid">
+          <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+              10. Data Grid (Таблиця даних)
+            </h2>
+            <p class="text-gray-600 mb-6">
+              Відображає структуровані дані у вигляді таблиці. Підтримує
+              сортування, фільтрацію та пагінацію.
+            </p>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Список користувачів:</h4>
+              <div class="mb-4 flex flex-wrap gap-4 items-center">
+                <div class="flex-1 min-w-64">
+                  <input
+                    type="text"
+                    id="userSearch"
+                    placeholder="Пошук користувачів..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <button
+                  onclick="addNewUser()"
+                  class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  ➕ Додати користувача
+                </button>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="data-grid" id="usersTable">
+                  <thead>
+                    <tr>
+                      <th onclick="sortTable(0)" class="cursor-pointer">
+                        ID <span class="sort-indicator">↕️</span>
+                      </th>
+                      <th onclick="sortTable(1)" class="cursor-pointer">
+                        Ім'я <span class="sort-indicator">↕️</span>
+                      </th>
+                      <th onclick="sortTable(2)" class="cursor-pointer">
+                        Email <span class="sort-indicator">↕️</span>
+                      </th>
+                      <th onclick="sortTable(3)" class="cursor-pointer">
+                        Роль <span class="sort-indicator">↕️</span>
+                      </th>
+                      <th onclick="sortTable(4)" class="cursor-pointer">
+                        Статус <span class="sort-indicator">↕️</span>
+                      </th>
+                      <th>Дії</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usersTableBody">
+                    <tr>
+                      <td>001</td>
+                      <td>Іван Петренко</td>
+                      <td>ivan.petrenko@example.com</td>
+                      <td>
+                        <span
+                          class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm"
+                          >Адмін</span
+                        >
+                      </td>
+                      <td>
+                        <span
+                          class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm"
+                          >Активний</span
+                        >
+                      </td>
+                      <td>
+                        <button
+                          onclick="editUser(this)"
+                          class="text-blue-600 hover:text-blue-800 mr-2"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onclick="deleteUser(this)"
+                          class="text-red-600 hover:text-red-800"
+                        >
+                          🗑️
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>002</td>
+                      <td>Марія Сидоренко</td>
+                      <td>maria.sydorenko@example.com</td>
+                      <td>
+                        <span
+                          class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm"
+                          >Користувач</span
+                        >
+                      </td>
+                      <td>
+                        <span
+                          class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm"
+                          >Активний</span
+                        >
+                      </td>
+                      <td>
+                        <button
+                          onclick="editUser(this)"
+                          class="text-blue-600 hover:text-blue-800 mr-2"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onclick="deleteUser(this)"
+                          class="text-red-600 hover:text-red-800"
+                        >
+                          🗑️
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>003</td>
+                      <td>Олександр Коваленко</td>
+                      <td>alexander.kovalenko@example.com</td>
+                      <td>
+                        <span
+                          class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm"
+                          >Модератор</span
+                        >
+                      </td>
+                      <td>
+                        <span
+                          class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm"
+                          >На паузі</span
+                        >
+                      </td>
+                      <td>
+                        <button
+                          onclick="editUser(this)"
+                          class="text-blue-600 hover:text-blue-800 mr-2"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onclick="deleteUser(this)"
+                          class="text-red-600 hover:text-red-800"
+                        >
+                          🗑️
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>004</td>
+                      <td>Катерина Шевченко</td>
+                      <td>kateryna.shevchenko@example.com</td>
+                      <td>
+                        <span
+                          class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm"
+                          >Користувач</span
+                        >
+                      </td>
+                      <td>
+                        <span
+                          class="bg-red-100 text-red-800 px-2 py-1 rounded text-sm"
+                          >Заблокований</span
+                        >
+                      </td>
+                      <td>
+                        <button
+                          onclick="editUser(this)"
+                          class="text-blue-600 hover:text-blue-800 mr-2"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onclick="deleteUser(this)"
+                          class="text-red-600 hover:text-red-800"
+                        >
+                          🗑️
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>005</td>
+                      <td>Дмитро Мельник</td>
+                      <td>dmytro.melnyk@example.com</td>
+                      <td>
+                        <span
+                          class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm"
+                          >Користувач</span
+                        >
+                      </td>
+                      <td>
+                        <span
+                          class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm"
+                          >Активний</span
+                        >
+                      </td>
+                      <td>
+                        <button
+                          onclick="editUser(this)"
+                          class="text-blue-600 hover:text-blue-800 mr-2"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onclick="deleteUser(this)"
+                          class="text-red-600 hover:text-red-800"
+                        >
+                          🗑️
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="mt-4 flex items-center justify-between">
+                <span class="text-sm text-gray-700">
+                  Показано <span id="showing-count">5</span> з
+                  <span id="total-count">5</span> записів
+                </span>
+                <div class="flex items-center space-x-2">
+                  <button
+                    class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+                    disabled
+                  >
+                    ← Попередня
+                  </button>
+                  <button class="px-3 py-1 bg-blue-600 text-white rounded">
+                    1
+                  </button>
+                  <button
+                    class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50"
+                    disabled
+                  >
+                    Наступна →
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="control-example">
+              <h4 class="font-semibold mb-4 text-lg">Звіт продажів:</h4>
+              <div class="overflow-x-auto">
+                <table class="data-grid">
+                  <thead>
+                    <tr>
+                      <th>Дата</th>
+                      <th>Товар</th>
+                      <th>Кількість</th>
+                      <th>Ціна за од.</th>
+                      <th>Загальна сума</th>
+                      <th>Статус</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>2024-01-15</td>
+                      <td>iPhone 15 Pro</td>
+                      <td>2</td>
+                      <td>35,000₴</td>
+                      <td class="font-semibold text-green-600">70,000₴</td>
+                      <td>
+                        <span
+                          class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm"
+                          >Оплачено</span
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>2024-01-14</td>
+                      <td>MacBook Pro</td>
+                      <td>1</td>
+                      <td>65,000₴</td>
+                      <td class="font-semibold text-green-600">65,000₴</td>
+                      <td>
+                        <span
+                          class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm"
+                          >Оплачено</span
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>2024-01-14</td>
+                      <td>AirPods Pro</td>
+                      <td>3</td>
+                      <td>8,000₴</td>
+                      <td class="font-semibold text-yellow-600">24,000₴</td>
+                      <td>
+                        <span
+                          class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm"
+                          >В обробці</span
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>2024-01-13</td>
+                      <td>iPad Air</td>
+                      <td>1</td>
+                      <td>25,000₴</td>
+                      <td class="font-semibold text-red-600">25,000₴</td>
+                      <td>
+                        <span
+                          class="bg-red-100 text-red-800 px-2 py-1 rounded text-sm"
+                          >Скасовано</span
+                        >
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr class="bg-gray-50 font-semibold">
+                      <td colspan="4" class="text-right">Підсумок:</td>
+                      <td class="text-green-600">159,000₴</td>
+                      <td>-</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="mt-16 text-center text-gray-600">
+        <div class="bg-white rounded-xl shadow-lg p-8">
+          <h3 class="text-2xl font-bold text-gray-800 mb-4">Висновок</h3>
+          <p class="text-lg leading-relaxed">
+            Цей інтерактивний посібник демонструє основні елементи інтерфейсу
+            користувача з реальними прикладами використання. Кожен елемент має
+            свою унікальну роль у створенні зручного та функціонального
+            інтерфейсу.
+          </p>
+          <p class="text-sm mt-4 text-blue-600 font-medium">
+            Створено Артуром Серкелі для лаборатоної роботи з UI/UX дизайну
+          </p>
+        </div>
+      </footer>
+    </div>
+
+    <script type="module">
+      // Notification system
+      function showNotification(message, type) {
+        const notification = document.getElementById("notification");
+        notification.textContent = message;
+        notification.className = `notification ${type} show`;
+
+        setTimeout(() => {
+          notification.classList.remove("show");
+        }, 3000);
+      }
+      window.showNotification = showNotification;
+
+      // Search functionality
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", function (e) {
+          const searchTerm = e.target.value.toLowerCase();
+          const elements = document.querySelectorAll(".ui-element");
+
+          elements.forEach((element) => {
+            const text = element.textContent.toLowerCase();
+            const elementName = element.getAttribute("data-element");
+
+            if (text.includes(searchTerm) || elementName.includes(searchTerm)) {
+              element.style.display = "block";
+              // Highlight search terms
+              if (searchTerm) {
+                highlightText(element, searchTerm);
+              } else {
+                removeHighlight(element);
+              }
+            } else {
+              element.style.display = "none";
+            }
+          });
+        });
+
+      function highlightText(element, searchTerm) {
+        removeHighlight(element);
+        const walker = document.createTreeWalker(
+          element,
+          NodeFilter.SHOW_TEXT,
+          null,
+          false
+        );
+
+        const textNodes = [];
+        let node;
+
+        while ((node = walker.nextNode())) {
+          textNodes.push(node);
+        }
+
+        textNodes.forEach((textNode) => {
+          if (textNode.textContent.toLowerCase().includes(searchTerm)) {
+            const parent = textNode.parentNode;
+            const regex = new RegExp(`(${searchTerm})`, "gi");
+            const highlighted = textNode.textContent.replace(
+              regex,
+              '<span class="search-highlight">$1</span>'
+            );
+
+            if (highlighted !== textNode.textContent) {
+              const span = document.createElement("span");
+              span.innerHTML = highlighted;
+              parent.replaceChild(span, textNode);
+            }
+          }
+        });
+      }
+
+      function removeHighlight(element) {
+        const highlighted = element.querySelectorAll(".search-highlight");
+        highlighted.forEach((span) => {
+          span.outerHTML = span.innerHTML;
+        });
+      }
+
+      // Radio buttons
+      document.querySelectorAll('input[name="pizza-size"]').forEach((radio) => {
+        radio.addEventListener("change", function () {
+          const result = document.getElementById("pizza-result");
+          const labels = {
+            small: "Мала (20см) - 120₴",
+            medium: "Середня (30см) - 180₴",
+            large: "Велика (40см) - 250₴",
+          };
+          result.textContent = labels[this.value];
+        });
+      });
+
+      // Checkboxes for hotel services
+      const serviceCheckboxes = ["wifi", "breakfast", "parking", "spa"];
+      const servicePrices = {
+        wifi: 50,
+        breakfast: 150,
+        parking: 100,
+        spa: 200,
+      };
+
+      serviceCheckboxes.forEach((service) => {
+        document
+          .getElementById(service)
+          .addEventListener("change", updateTotalCost);
+      });
+
+      function updateTotalCost() {
+        let total = 0;
+        serviceCheckboxes.forEach((service) => {
+          if (document.getElementById(service).checked) {
+            total += servicePrices[service];
+          }
+        });
+        document.getElementById("total-cost").textContent = total + "₴/день";
+      }
+
+      // Form validation
+      function validateForm() {
+        const firstName = document.getElementById("firstName").value.trim();
+        const lastName = document.getElementById("lastName").value.trim();
+        const email = document.getElementById("email").value.trim();
+
+        if (!firstName || !lastName || !email) {
+          showNotification("Будь ласка, заповніть обов'язкові поля!", "error");
+          return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          showNotification("Введіть правильний email!", "error");
+          return;
+        }
+
+        showNotification("Форма успішно перевірена!", "success");
+      }
+      window.validateForm = validateForm;
+
+      // Character count for textarea
+      document.getElementById("comment").addEventListener("input", function () {
+        const count = this.value.length;
+        document.getElementById("charCount").textContent = count;
+
+        if (count > 500) {
+          this.value = this.value.substring(0, 500);
+          document.getElementById("charCount").textContent = 500;
+        }
+      });
+
+      // Tabs functionality
+      function showTab(tabName) {
+        // Hide all tab contents
+        document.querySelectorAll(".tab-content").forEach((content) => {
+          content.classList.remove("active");
+        });
+
+        // Remove active class from all buttons
+        document.querySelectorAll(".tab-button").forEach((button) => {
+          button.classList.remove("active");
+        });
+
+        // Show selected tab content
+        document.getElementById(`content-${tabName}`).classList.add("active");
+        document.getElementById(`tab-${tabName}`).classList.add("active");
+      }
+      window.showTab = showTab;
+
+      // Loading button simulation
+      function simulateLoading() {
+        const btn = document.getElementById("loadingBtn");
+        const loading = btn.querySelector(".loading");
+        const normalText = btn.querySelector(".normal-text");
+
+        loading.classList.add("show");
+        normalText.style.display = "none";
+        btn.disabled = true;
+
+        setTimeout(() => {
+          loading.classList.remove("show");
+          normalText.style.display = "inline";
+          btn.disabled = false;
+          showNotification("Дані успішно оновлені!", "success");
+        }, 2000);
+      }
+      window.simulateLoading = simulateLoading;
+
+      // Link highlighting
+      function highlightLink(link) {
+        // Remove previous highlights
+        document.querySelectorAll("nav a").forEach((a) => {
+          a.classList.remove("font-bold", "text-blue-800");
+        });
+
+        // Highlight clicked link
+        link.classList.add("font-bold", "text-blue-800");
+        showNotification(`Перехід на: ${link.textContent}`, "info");
+      }
+      window.highlightLink = highlightLink;
+
+      // Dropdown functionality
+      function toggleDropdown(dropdownId) {
+        const dropdown = document.getElementById(dropdownId).parentNode;
+        dropdown.classList.toggle("open");
+
+        // Close other dropdowns
+        document.querySelectorAll(".dropdown").forEach((d) => {
+          if (d !== dropdown) {
+            d.classList.remove("open");
+          }
+        });
+      }
+      window.toggleDropdown = toggleDropdown;
+
+      function selectCountry(country) {
+        document.getElementById("selected-country").textContent = country;
+        document
+          .getElementById("country-dropdown")
+          .parentNode.classList.remove("open");
+        showNotification(`Вибрано країну: ${country}`, "success");
+      }
+      window.selectCountry = selectCountry;
+
+      function selectDelivery(delivery) {
+        document.getElementById("selected-delivery").textContent = delivery;
+        document
+          .getElementById("delivery-dropdown")
+          .parentNode.classList.remove("open");
+        showNotification(`Спосіб доставки: ${delivery}`, "success");
+      }
+      window.selectDelivery = selectDelivery;
+
+      function selectCategory(category) {
+        document.getElementById("selected-category").textContent = category;
+        document
+          .getElementById("category-dropdown")
+          .parentNode.classList.remove("open");
+        showNotification(`Категорія: ${category}`, "info");
+      }
+      window.selectCategory = selectCategory;
+
+      // Multiselect functionality
+      let selectedSkills = ["JavaScript", "React"];
+
+      function toggleMultiselect() {
+        toggleDropdown("skills-dropdown");
+      }
+      window.toggleMultiselect = toggleMultiselect;
+
+      function toggleSkill(skill) {
+        const index = selectedSkills.indexOf(skill);
+        if (index > -1) {
+          selectedSkills.splice(index, 1);
+        } else {
+          selectedSkills.push(skill);
+        }
+        updateSelectedSkills();
+      }
+      window.toggleSkill = toggleSkill;
+
+      function removeSkill(event, skill) {
+        event.stopPropagation();
+        const index = selectedSkills.indexOf(skill);
+        if (index > -1) {
+          selectedSkills.splice(index, 1);
+          updateSelectedSkills();
+        }
+      }
+      window.removeSkill = removeSkill;
+
+      function updateSelectedSkills() {
+        const container = document.getElementById("selected-skills");
+        container.innerHTML = "";
+
+        selectedSkills.forEach((skill) => {
+          const tag = document.createElement("span");
+          tag.className = "multiselect-tag";
+          tag.innerHTML = `${skill} <span class="remove" onclick="removeSkill(event, '${skill}')">×</span>`;
+          container.appendChild(tag);
+        });
+
+        if (selectedSkills.length === 0) {
+          container.innerHTML =
+            '<span class="text-gray-400">Навички не обрано</span>';
+        }
+      }
+
+      // Data grid functionality
+      let sortOrder = {};
+
+      function sortTable(columnIndex) {
+        const table = document.getElementById("usersTable");
+        const tbody = table.querySelector("tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+
+        const currentOrder = sortOrder[columnIndex] || "asc";
+        const newOrder = currentOrder === "asc" ? "desc" : "asc";
+        sortOrder[columnIndex] = newOrder;
+
+        rows.sort((a, b) => {
+          const aValue = a.cells[columnIndex].textContent.trim().toLowerCase();
+          const bValue = b.cells[columnIndex].textContent.trim().toLowerCase();
+
+          if (newOrder === "asc") {
+            return aValue.localeCompare(bValue);
+          } else {
+            return bValue.localeCompare(aValue);
+          }
+        });
+
+        rows.forEach((row) => tbody.appendChild(row));
+
+        // Update sort indicators
+        document.querySelectorAll(".sort-indicator").forEach((indicator) => {
+          indicator.textContent = "↕️";
+        });
+
+        const indicator = table.querySelector(
+          `th:nth-child(${columnIndex + 1}) .sort-indicator`
+        );
+        indicator.textContent = newOrder === "asc" ? "↑" : "↓";
+
+        showNotification(
+          `Сортування по колонці ${columnIndex + 1} (${
+            newOrder === "asc" ? "за зростанням" : "за спаданням"
+          })`,
+          "info"
+        );
+      }
+      window.sortTable = sortTable;
+
+      function editUser(button) {
+        const row = button.closest("tr");
+        const name = row.cells[1].textContent;
+        showNotification(`Редагування користувача: ${name}`, "info");
+      }
+      window.editUser = editUser;
+
+      function deleteUser(button) {
+        if (confirm("Ви впевнені, що хочете видалити цього користувача?")) {
+          const row = button.closest("tr");
+          const name = row.cells[1].textContent;
+          row.remove();
+
+          // Update counts
+          const remaining =
+            document.querySelectorAll("#usersTableBody tr").length;
+          document.getElementById("showing-count").textContent = remaining;
+          document.getElementById("total-count").textContent = remaining;
+
+          showNotification(`Користувача ${name} видалено`, "success");
+        }
+      }
+      window.deleteUser = deleteUser;
+
+      function addNewUser() {
+        const tbody = document.getElementById("usersTableBody");
+        const newId = (tbody.children.length + 1).toString().padStart(3, "0");
+
+        const newRow = tbody.insertRow();
+        newRow.innerHTML = `
+                <td>${newId}</td>
+                <td>Новий користувач</td>
+                <td>new.user@example.com</td>
+                <td><span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">Користувач</span></td>
+                <td><span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">Активний</span></td>
+                <td>
+                    <button onclick="editUser(this)" class="text-blue-600 hover:text-blue-800 mr-2">✏️</button>
+                    <button onclick="deleteUser(this)" class="text-red-600 hover:text-red-800">🗑️</button>
+                </td>
+            `;
+
+        // Update counts
+        const total = tbody.children.length;
+        document.getElementById("showing-count").textContent = total;
+        document.getElementById("total-count").textContent = total;
+
+        showNotification("Новий користувач додан до таблиці", "success");
+      }
+      window.addNewUser = addNewUser;
+
+      // User search functionality
+      document
+        .getElementById("userSearch")
+        .addEventListener("input", function (e) {
+          const searchTerm = e.target.value.toLowerCase();
+          const rows = document.querySelectorAll("#usersTableBody tr");
+          let visibleCount = 0;
+
+          rows.forEach((row) => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+              row.style.display = "";
+              visibleCount++;
+            } else {
+              row.style.display = "none";
+            }
+          });
+
+          document.getElementById("showing-count").textContent = visibleCount;
+        });
+
+      // Close dropdowns when clicking outside
+      document.addEventListener("click", function (event) {
+        if (!event.target.closest(".dropdown")) {
+          document.querySelectorAll(".dropdown").forEach((dropdown) => {
+            dropdown.classList.remove("open");
+          });
+        }
+      });
+
+      // Initialize
+      updateSelectedSkills();
+
+      console.log("🎉 Інтерактивний посібник UI елементів завантажений!");
+      console.log(
+        "Всі елементи повністю функціональні та готові до демонстрації."
+      );
+    </script>
+  </body>
+</html>
